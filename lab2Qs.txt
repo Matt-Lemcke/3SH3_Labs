@@ -1,0 +1,7 @@
+Question 1:
+    ps -e: prints a list of all processes
+    ps -l: outputs the long format of the processes
+
+Question 2:
+    Open firefox and type 'ps ax | grep firefox' into terminal.
+    Take the PID number and type 'kill -KILL (pid#)' into terminal.
