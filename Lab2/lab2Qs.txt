@@ -5,3 +5,9 @@ Question 1:
 Question 2:
     Open firefox and type 'ps ax | grep firefox' into terminal.
     Take the PID number and type 'kill -KILL (pid#)' into terminal.
+
+Question 3:
+    The 'Both parent and child reach here' statement will print twice.
+
+Question 4:
+    Lists all running processes as a tree, which indicates which processes are children and which are parents. 
