@@ -17,11 +17,11 @@ int getIndex(int row, int col, int n)
 }
 
 // Swap the two given indexes of the input array
-void swap(int *xp, int *yp)
+void swap(int *x, int *y)
 {
-    int temp = *xp;
-    *xp = *yp;
-    *yp = temp;
+    int temp = *x;
+    *x = *y;
+    *y = temp;
 }
 
 // Bubble sort by column
@@ -67,6 +67,28 @@ void bubbleRowReverse(int rowNum)
             }
         }
     }
+}
+
+// Function to write random numbers to NxN matrix to text file based on n and max value
+void randomWriteFile(int n, int maxVal){
+    FILE *fptr; 
+    char fname[20] = "input.txt";
+    time_t t;
+    fptr = fopen(fname, "w");
+    srand((unsigned) time(&t));
+    for(int i = 0; i < n; i++){
+        for (int j = 0; j < n; j++)
+        {
+            int randVal = rand() % (maxVal+1);
+            if(j == (n-1))
+                fprintf(fptr,"%d", randVal);
+            else
+                fprintf(fptr,"%d,", randVal);
+        }
+        if(i != (n-1))
+            fprintf(fptr, "\n");
+    }
+    fclose(fptr);
 }
 
 // Exection code of the created threads
@@ -126,6 +148,7 @@ void *thread(void *i)
 // Main function
 int main()
 {
+    randomWriteFile(6, 100);
     FILE *fptr;                   // Input file instance
     int row = 0, col = 0;         // Current row and column identifier
     char fname[20] = "input.txt"; // Input file name
