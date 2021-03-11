@@ -4,17 +4,19 @@
 #include <semaphore.h>
 #include <pthread.h>
 
-sem_t *s;
-int threadCount = 0;
-int *in;
-int maxPhase, phase = 1;
-int n = 1;
+sem_t *s;                // Semaphore array
+int threadCount = 0;     // Counter for number of threads that finish the sort
+int *in;                 // Input matrix array
+int maxPhase, phase = 1; // Current phase counter and max phase number for shear sort
+int n = 1;               // Size of array
 
+// Determine index of input array based on matrix rows and columns
 int getIndex(int row, int col, int n)
 {
     return row * n + col;
 }
 
+// Swap the two given indexes of the input array
 void swap(int *xp, int *yp)
 {
     int temp = *xp;
@@ -22,6 +24,7 @@ void swap(int *xp, int *yp)
     *yp = temp;
 }
 
+// Bubble sort by column
 void bubbleCol(int colNum)
 {
     for (int i = 0; i < n - 1; i++)
@@ -36,6 +39,7 @@ void bubbleCol(int colNum)
     }
 }
 
+// Bubble sort by row from left to right
 void bubbleRowForward(int rowNum)
 {
     for (int i = 0; i < n - 1; i++)
@@ -50,6 +54,7 @@ void bubbleRowForward(int rowNum)
     }
 }
 
+// Bubble sort by row from right to left
 void bubbleRowReverse(int rowNum)
 {
     for (int i = 0; i < n - 1; i++)
@@ -63,15 +68,22 @@ void bubbleRowReverse(int rowNum)
         }
     }
 }
+
+// Exection code of the created threads
 void *thread(void *i)
 {
-    int id = *(int *)i;
+    int id = *(int *)i; // Get current thread id
+
+    // Cycle through sorting until the max number of phases is reached
     while (phase < maxPhase + 1)
     {
+        // Execute if all threads are not finished
         if (threadCount < n)
         {
+            // Wait until all threads have finished
             sem_wait(&s[id]);
-            printf("\nSort %d", id);
+
+            // Determine sorting direction
             if (phase % 2)
             {
                 //Row sort
@@ -79,52 +91,52 @@ void *thread(void *i)
                 {
                     //Backward sort
                     bubbleRowReverse(id);
-                    printf("brr");
                 }
                 else
                 {
 
                     //Forward sort
                     bubbleRowForward(id);
-                    printf("brf");
                 }
             }
             else
             {
                 //Column sort
                 bubbleCol(id);
-                printf("bc");
             }
+            // Thread completed
             threadCount++;
-            printf(" Thread %d", threadCount);
         }
+        // Execute if all threads have finished
         else
         {
-            printf("Release");
+            // Reset threadcounter and increment phase number
             threadCount = 0;
             phase++;
+
+            //Open all thread semaphores
             for (int i = 0; i < n; i++)
             {
                 sem_post(&s[i]);
             }
         }
     }
-    //pthread_exit(NULL);
-    printf("\nDone %d", id);
 }
 
+// Main function
 int main()
 {
-    FILE *fptr;
-    int row = 0, col = 0;
-    char str[100];
-    char fname[20] = "input.txt";
-    char str1;
+    FILE *fptr;                   // Input file instance
+    int row = 0, col = 0;         // Current row and column identifier
+    char fname[20] = "input.txt"; // Input file name
+    char str1;                    // Read in character
 
     /*-------------- read the file -------------------------------------*/
+    // Open the file for reading
     fptr = fopen(fname, "r");
     str1 = fgetc(fptr);
-    printf("%c", str1);
+
+    // Count size of array
     while (str1 != EOF)
     {
         if (str1 == '\n')
@@ -132,13 +144,15 @@ int main()
             n++;
         }
         str1 = fgetc(fptr);
-        printf("%c", str1);
     }
     fclose(fptr);
-    printf("\n---------- DONE READING -----------\n");
+
+    // Allocate memory for the input matrix
     in = (int *)malloc(n * n * sizeof(int));
     fptr = fopen(fname, "r");
     str1 = fgetc(fptr);
+
+    // Read in numbers to input matrix array
     int val = 0;
     while (str1 != EOF)
     {
@@ -165,7 +179,12 @@ int main()
     row++;
     col = 0;
     val = 0;
+
+    // Create thread id array
     int thread_ids[n];
+
+    // Print original input
+    printf("\nOriginal Matrix\n");
     for (int i = 0; i < n; i++)
     {
         for (int j = 0; j < n; j++)
@@ -173,18 +192,25 @@ int main()
             printf("%d ", in[getIndex(i, j, n)]);
         }
         printf("\n");
+
+        // Initialize thread id array
         thread_ids[i] = i;
     }
     /*-------------- Done reading from file -------------------------------------*/
 
+    // Allocate memory for semaphores
     s = (sem_t *)malloc(n * sizeof(sem_t));
+
+    // Create semaphore for each thread
     for (int i = 0; i < n; i++)
     {
         sem_init(&s[i], 0, 1);
     }
 
+    // Calculate max number of phases for shear sort
     maxPhase = ceil(log(n * n) / log(2) + 1);
 
+    // Create threads
     pthread_t threads[n];
     pthread_attr_t attribute;
     pthread_attr_init(&attribute);
@@ -192,17 +218,15 @@ int main()
     {
         pthread_create(&threads[i], &attribute, thread, &thread_ids[i]);
     }
+
+    // Terminate threads
     for (int b = 0; b < n; b++)
     {
         pthread_join(threads[b], NULL);
     }
 
-    // pthread_attr_destroy(&attribute);
-    // for (int i = 0; i < n; i++)
-    // {
-    //     sem_destroy(&s[i]);
-    // }
-    printf("\n");
+    // Print sorted matrix
+    printf("\nSorted Matrix\n");
     for (int i = 0; i < n; i++)
     {
         for (int j = 0; j < n; j++)
