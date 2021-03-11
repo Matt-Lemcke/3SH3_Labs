@@ -19,49 +19,60 @@ int main()
     /*-------------- read the file -------------------------------------*/
     fptr = fopen(fname, "r");
     str1 = fgetc(fptr);
+    printf("%c", str1);
     while (str1 != EOF)
     {
         if (str1 == '\n')
         {
             n++;
         }
-        // printf("%c", str1);
         str1 = fgetc(fptr);
+        printf("%c", str1);
+
     }
     fclose(fptr);
+    printf("\n---------- DONE READING -----------\n");
     in = (int *)malloc(n * n * sizeof(int));
     fptr = fopen(fname, "r");
     str1 = fgetc(fptr);
+    int val = 0;
+    // printf("%c", str1);
     while (str1 != EOF)
     {
-        printf('%d', getIndex(row, col, n));
+        // printf("%d", getIndex(row, col, n));
         if (str1 == ',')
         {
-            in[0] = atoi(str);
-            printf('%s', str);
-            i = 0;
+            // printf("%s", str);
+            in[getIndex(row, col, n)] = val;
             col++;
+            val = 0;
         }
         else if (str1 == '\n')
         {
+            in[getIndex(row, col, n)] = val/10;
             row++;
             col = 0;
-            i = 0;
+            val = 0;
         }
         else
         {
-            str[i] = str1;
-            i++;
+            // printf("%d\n", atoi(&str1));
+            val = val*10 + atoi(&str1);
         }
         str1 = fgetc(fptr);
+        // printf("%c", str1);
     }
-    // for (int i = 0; i < n * n; i++)
-    // {
-    //     // for (int j = 0; j < n; j++)
-    //     // {
-    //     printf("%d ", input[i]);
-    //     // }
-    //     printf("\n");
-    // }
+    in[getIndex(row, col, n)] = val;
+    row++;
+    col = 0;
+    val = 0;
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            printf("%d ", in[getIndex(i,j,n)]);
+        }
+        printf("\n");
+    }
     return 0;
 }
