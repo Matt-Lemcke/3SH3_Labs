@@ -4,7 +4,7 @@
 #include <semaphore.h>
 #include <pthread.h>
 
-sem_t s;
+sem_t *s;
 int threadCount = 0;
 int *in;
 int maxPhase;
@@ -18,12 +18,24 @@ int getIndex(int row, int col, int n)
 void *sort(void *i)
 {
     int id = *(int *)i;
-    for (int phase = 1; phase <= maxPhase; phase++)
+    while (1)
     {
+        if (threadCount < n)
+        {
+            sem_wait(&s[id]);
+            printf("\nsort %d", id);
+            threadCount++;
+        }
+        else
+        {
+            printf("Release");
+            threadCount = 0;
+            for (int i = 0; i < n; i++)
+            {
+                sem_post(&s[i]);
+            }
+        }
     }
-    // sem_wait(&s);
-    printf("\nsort %d", id);
-    threadCount++;
 }
 
 int main()
@@ -89,7 +101,12 @@ int main()
         thread_ids[i] = i;
     }
     /*-------------- Done reading from file -------------------------------------*/
-    sem_init(&s, 0, n);
+
+    s = (sem_t *)malloc(n * sizeof(sem_t));
+    for (int i = 0; i < n; i++)
+    {
+        sem_init(&s[i], 0, 1);
+    }
 
     maxPhase = ceil(2 * log(n) / log(2) + 1);
 
