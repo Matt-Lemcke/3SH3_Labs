@@ -7,7 +7,7 @@
 sem_t *s;
 int threadCount = 0;
 int *in;
-int maxPhase;
+int maxPhase, phase = 1;
 int n = 1;
 
 int getIndex(int row, int col, int n)
@@ -15,64 +15,101 @@ int getIndex(int row, int col, int n)
     return row * n + col;
 }
 
-void *sort(void *i)
+void swap(int *xp, int *yp)
+{
+    int temp = *xp;
+    *xp = *yp;
+    *yp = temp;
+}
+
+void bubbleCol(int colNum)
+{
+    for (int i = 0; i < n - 1; i++)
+    {
+        for (int j = 0; j < n - i - 1; j++)
+        {
+            if (in[getIndex(j, colNum, n)] > in[getIndex(j + 1, colNum, n)])
+            {
+                swap(&in[getIndex(j, colNum, n)], &in[getIndex(j + 1, colNum, n)]);
+            }
+        }
+    }
+}
+
+void bubbleRowForward(int rowNum)
+{
+    for (int i = 0; i < n - 1; i++)
+    {
+        for (int j = 0; j < n - i - 1; j++)
+        {
+            if (in[getIndex(rowNum, j, n)] > in[getIndex(rowNum, j + 1, n)])
+            {
+                swap(&in[getIndex(rowNum, j, n)], &in[getIndex(rowNum, j + 1, n)]);
+            }
+        }
+    }
+}
+
+void bubbleRowReverse(int rowNum)
+{
+    for (int i = 0; i < n - 1; i++)
+    {
+        for (int j = 0; j < n - i - 1; j++)
+        {
+            if (in[getIndex(rowNum, j, n)] < in[getIndex(rowNum, j + 1, n)])
+            {
+                swap(&in[getIndex(rowNum, j, n)], &in[getIndex(rowNum, j + 1, n)]);
+            }
+        }
+    }
+}
+void *thread(void *i)
 {
     int id = *(int *)i;
-    while (1)
+    while (phase < maxPhase)
     {
         if (threadCount < n)
         {
             sem_wait(&s[id]);
-            printf("\nsort %d", id);
+            printf("\nSort %d", id);
+            if (phase % 2)
+            {
+                //Row sort
+                if (id % 2)
+                {
+                    //Forward sort
+                    bubbleRowForward(id);
+                    printf("brf");
+                }
+                else
+                {
+                    //Backward sort
+                    bubbleRowReverse(id);
+                    printf("brr");
+                }
+            }
+            else
+            {
+                //Column sort
+                bubbleCol(id);
+                printf("bc");
+            }
             threadCount++;
+            printf(" Thread %d", threadCount);
         }
         else
         {
             printf("Release");
             threadCount = 0;
+            phase++;
             for (int i = 0; i < n; i++)
             {
                 sem_post(&s[i]);
             }
         }
     }
-}
-
-void swap(int *xp, int *yp) 
-{ 
-    int temp = *xp; 
-    *xp = *yp; 
-    *yp = temp; 
-} 
-
-void bubbleCol(int *in, int colNum){
-    for(int i = 0; i < n-1; i++){
-        for(int j = 0; j < n-i-1; j++){
-            if(in[getIndex(j, colNum, n)] > in[getIndex(j+1, colNum, n)]){
-                swap(&in[getIndex(j, colNum, n)], &in[getIndex(j+1, colNum, n)]);
-            }
-        }
-    }
-}
-
-void bubbleRowForward(int *in, int rowNum){
-    for(int i = 0; i < n-1; i++){
-        for(int j = 0; j < n-i-1; j++){
-            if(in[getIndex(rowNum, j, n)] > in[getIndex(rowNum, j+1, n)]){
-                swap(&in[getIndex(jrowNum, j, n)], &in[getIndex(rowNum, j+1, n)]);
-            }
-        }
-    }
-}
-
-void bubbleRowForward(int *in, int rowNum){
-    for(int i = 0; i < n-1; i++){
-        for(int j = 0; j < n-i-1; j++){
-            if(in[getIndex(rowNum, j, n)] < in[getIndex(rowNum, j+1, n)]){
-                swap(&in[getIndex(jrowNum, j, n)], &in[getIndex(rowNum, j+1, n)]);
-            }
-        }
-    }
+    //pthread_exit(NULL);
+    printf("\nDone %d", id);
 }
 
 int main()
@@ -152,11 +189,26 @@ int main()
     pthread_attr_init(&attribute);
     for (int i = 0; i < n; i++)
     {
-        pthread_create(&threads[i], &attribute, sort, &thread_ids[i]);
+        pthread_create(&threads[i], &attribute, thread, &thread_ids[i]);
     }
     for (int b = 0; b < n; b++)
     {
         pthread_join(threads[b], NULL);
+    }
+
+    // pthread_attr_destroy(&attribute);
+    // for (int i = 0; i < n; i++)
+    // {
+    //     sem_destroy(&s[i]);
+    // }
+    printf("\n");
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            printf("%d ", in[getIndex(i, j, n)]);
+        }
+        printf("\n");
     }
 
     return 0;
