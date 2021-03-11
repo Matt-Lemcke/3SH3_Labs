@@ -66,7 +66,7 @@ void bubbleRowReverse(int rowNum)
 void *thread(void *i)
 {
     int id = *(int *)i;
-    while (phase < maxPhase)
+    while (phase < maxPhase + 1)
     {
         if (threadCount < n)
         {
@@ -77,15 +77,16 @@ void *thread(void *i)
                 //Row sort
                 if (id % 2)
                 {
-                    //Forward sort
-                    bubbleRowForward(id);
-                    printf("brf");
-                }
-                else
-                {
                     //Backward sort
                     bubbleRowReverse(id);
                     printf("brr");
+                }
+                else
+                {
+
+                    //Forward sort
+                    bubbleRowForward(id);
+                    printf("brf");
                 }
             }
             else
@@ -182,7 +183,7 @@ int main()
         sem_init(&s[i], 0, 1);
     }
 
-    maxPhase = ceil(2 * log(n) / log(2) + 1);
+    maxPhase = ceil(log(n * n) / log(2) + 1);
 
     pthread_t threads[n];
     pthread_attr_t attribute;
