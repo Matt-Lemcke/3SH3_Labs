@@ -26,6 +26,43 @@ void *sort(void *i)
     threadCount++;
 }
 
+void swap(int *xp, int *yp) 
+{ 
+    int temp = *xp; 
+    *xp = *yp; 
+    *yp = temp; 
+} 
+
+void bubbleCol(int *in, int colNum){
+    for(int i = 0; i < n-1; i++){
+        for(int j = 0; j < n-i-1; j++){
+            if(in[getIndex(j, colNum, n)] > in[getIndex(j+1, colNum, n)]){
+                swap(&in[getIndex(j, colNum, n)], &in[getIndex(j+1, colNum, n)]);
+            }
+        }
+    }
+}
+
+void bubbleRowForward(int *in, int rowNum){
+    for(int i = 0; i < n-1; i++){
+        for(int j = 0; j < n-i-1; j++){
+            if(in[getIndex(rowNum, j, n)] > in[getIndex(rowNum, j+1, n)]){
+                swap(&in[getIndex(jrowNum, j, n)], &in[getIndex(rowNum, j+1, n)]);
+            }
+        }
+    }
+}
+
+void bubbleRowForward(int *in, int rowNum){
+    for(int i = 0; i < n-1; i++){
+        for(int j = 0; j < n-i-1; j++){
+            if(in[getIndex(rowNum, j, n)] < in[getIndex(rowNum, j+1, n)]){
+                swap(&in[getIndex(jrowNum, j, n)], &in[getIndex(rowNum, j+1, n)]);
+            }
+        }
+    }
+}
+
 int main()
 {
     FILE *fptr;
