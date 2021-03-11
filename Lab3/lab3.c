@@ -1,19 +1,35 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <semaphore.h> 
-#include <pthread.h> 
+#include <math.h>
+#include <semaphore.h>
+#include <pthread.h>
+
+sem_t s;
+int threadCount = 0;
+int *in;
+int maxPhase;
+int n = 1;
 
 int getIndex(int row, int col, int n)
 {
     return row * n + col;
 }
 
+void *sort(void *i)
+{
+    int id = *(int *)i;
+    for (int phase = 1; phase <= maxPhase; phase++)
+    {
+    }
+    // sem_wait(&s);
+    printf("\nsort %d", id);
+    threadCount++;
+}
+
 int main()
 {
     FILE *fptr;
-    int i = 0, n = 1;
     int row = 0, col = 0;
-    int *in;
     char str[100];
     char fname[20] = "input.txt";
     char str1;
@@ -30,7 +46,6 @@ int main()
         }
         str1 = fgetc(fptr);
         printf("%c", str1);
-
     }
     fclose(fptr);
     printf("\n---------- DONE READING -----------\n");
@@ -48,14 +63,14 @@ int main()
         }
         else if (str1 == '\n')
         {
-            in[getIndex(row, col, n)] = val/10;
+            in[getIndex(row, col, n)] = val / 10;
             row++;
             col = 0;
             val = 0;
         }
         else
         {
-            val = val*10 + atoi(&str1);
+            val = val * 10 + atoi(&str1);
         }
         str1 = fgetc(fptr);
     }
@@ -63,27 +78,32 @@ int main()
     row++;
     col = 0;
     val = 0;
+    int thread_ids[n];
     for (int i = 0; i < n; i++)
     {
         for (int j = 0; j < n; j++)
         {
-            printf("%d ", in[getIndex(i,j,n)]);
+            printf("%d ", in[getIndex(i, j, n)]);
         }
         printf("\n");
+        thread_ids[i] = i;
     }
-// Done reading from file
+    /*-------------- Done reading from file -------------------------------------*/
+    sem_init(&s, 0, n);
 
+    maxPhase = ceil(2 * log(n) / log(2) + 1);
 
-
-
-
-
-
-
-
-
-
-
+    pthread_t threads[n];
+    pthread_attr_t attribute;
+    pthread_attr_init(&attribute);
+    for (int i = 0; i < n; i++)
+    {
+        pthread_create(&threads[i], &attribute, sort, &thread_ids[i]);
+    }
+    for (int b = 0; b < n; b++)
+    {
+        pthread_join(threads[b], NULL);
+    }
 
     return 0;
 }
