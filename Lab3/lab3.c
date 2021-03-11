@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <semaphore.h> 
+#include <pthread.h> 
 
 int getIndex(int row, int col, int n)
 {
@@ -36,13 +38,10 @@ int main()
     fptr = fopen(fname, "r");
     str1 = fgetc(fptr);
     int val = 0;
-    // printf("%c", str1);
     while (str1 != EOF)
     {
-        // printf("%d", getIndex(row, col, n));
         if (str1 == ',')
         {
-            // printf("%s", str);
             in[getIndex(row, col, n)] = val;
             col++;
             val = 0;
@@ -56,11 +55,9 @@ int main()
         }
         else
         {
-            // printf("%d\n", atoi(&str1));
             val = val*10 + atoi(&str1);
         }
         str1 = fgetc(fptr);
-        // printf("%c", str1);
     }
     in[getIndex(row, col, n)] = val;
     row++;
@@ -74,5 +71,19 @@ int main()
         }
         printf("\n");
     }
+// Done reading from file
+
+
+
+
+
+
+
+
+
+
+
+
+
     return 0;
 }
