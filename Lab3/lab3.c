@@ -7,7 +7,7 @@
 sem_t *s;                // Semaphore array
 int threadCount = 0;     // Counter for number of threads that finish the sort
 int *in;                 // Input matrix array
-int maxPhase, phase = 1; // Current phase counter and max phase number for shear sort
+int maxPhase, phase = 0; // Current phase counter and max phase number for shear sort
 int n = 1;               // Size of array
 
 // Determine index of input array based on matrix rows and columns
@@ -97,7 +97,7 @@ void *thread(void *i)
     int id = *(int *)i; // Get current thread id
 
     // Cycle through sorting until the max number of phases is reached
-    while (phase < maxPhase + 1)
+    while (phase < maxPhase)
     {
         // Execute if all threads are not finished
         if (threadCount < n)
@@ -148,7 +148,7 @@ void *thread(void *i)
 // Main function
 int main()
 {
-    randomWriteFile(6, 100);
+    randomWriteFile(4, 18);
     FILE *fptr;                   // Input file instance
     int row = 0, col = 0;         // Current row and column identifier
     char fname[20] = "input.txt"; // Input file name
