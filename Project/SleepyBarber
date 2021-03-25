@@ -1,0 +1,29 @@
+Semaphore seats = 1, customer = 0, barber = 0;
+int freeSeats = N;
+
+Barber{
+    while(true){
+        semwait(customer);
+        semwait(seats);
+        freeSeats++;
+        semsignal(seats);
+        semsignal(barber);
+        cutHair();
+    }
+}
+
+Customer{
+    semwait(seats);
+    if(freeSeats > 0){
+        freeSeats--;
+        semsignal(seats);
+        semsignal(customer);
+        semwait(barber);
+        getHairCut();
+        exit();
+    }
+    else{
+        semsignal(seats);
+        exit();
+    }
+}
