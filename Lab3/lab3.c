@@ -70,22 +70,24 @@ void bubbleRowReverse(int rowNum)
 }
 
 // Function to write random numbers to NxN matrix to text file based on n and max value
-void randomWriteFile(int n, int maxVal){
-    FILE *fptr; 
+void randomWriteFile(int n, int maxVal)
+{
+    FILE *fptr;
     char fname[20] = "input.txt";
     time_t t;
     fptr = fopen(fname, "w");
-    srand((unsigned) time(&t));
-    for(int i = 0; i < n; i++){
+    srand((unsigned)time(&t));
+    for (int i = 0; i < n; i++)
+    {
         for (int j = 0; j < n; j++)
         {
-            int randVal = rand() % (maxVal+1);
-            if(j == (n-1))
-                fprintf(fptr,"%d", randVal);
+            int randVal = rand() % (maxVal + 1);
+            if (j == (n - 1))
+                fprintf(fptr, "%d", randVal);
             else
-                fprintf(fptr,"%d,", randVal);
+                fprintf(fptr, "%d,", randVal);
         }
-        if(i != (n-1))
+        if (i != (n - 1))
             fprintf(fptr, "\n");
     }
     fclose(fptr);
@@ -148,7 +150,7 @@ void *thread(void *i)
 // Main function
 int main()
 {
-    randomWriteFile(4, 18);
+    randomWriteFile(6, 50);
     FILE *fptr;                   // Input file instance
     int row = 0, col = 0;         // Current row and column identifier
     char fname[20] = "input.txt"; // Input file name
