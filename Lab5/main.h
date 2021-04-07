@@ -1,0 +1,1 @@
+int fileInfo(char *name[]);
