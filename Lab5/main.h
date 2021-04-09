@@ -1,1 +1,2 @@
-int fileInfo(char *name[]);
+int fileInfo(char *input);
+int isLink(char *input);

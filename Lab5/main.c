@@ -54,6 +54,17 @@ int fileInfo(char *input){
     return(S_ISDIR(buffer.st_mode));
 }
 
+
+int isLink(char *input){
+    struct stat buffer;
+    if (lstat(input, &buffer) == -1) { //If stat returns -1, error
+        perror("stat");
+        exit(EXIT_FAILURE);
+    }
+    //Return if entry is link
+    return(S_ISLNK(buffer.st_mode));
+}
+
 void traverse(char *input){
     // opendir(3C), readdir(3C), closedir(3C), chdir(2), getcwd(3C) and rewinddir(3C)
     DIR *dirp;
@@ -77,13 +88,15 @@ void traverse(char *input){
             file = dp->d_name;
             int isDir = fileInfo(file); //check if directory
             if(isDir){
-                // DIR
-                printf("is a dir\n");
-                traverse(file); //if so recursively call
+                int dirIsLink = isLink(file);
+                if(!(dirIsLink)){
+                    // DIR
+                    printf("is a dir\n");
+                    traverse(file); //if so recursively call
+                }
                 
             }else{
-                printf("is a file\n");
-
+                printf("is a file\n")
                 // FILE
             }
         }else{
